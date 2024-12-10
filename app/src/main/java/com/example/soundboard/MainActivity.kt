@@ -12,8 +12,14 @@ import retrofit2.Response
 class MainActivity : AppCompatActivity() {
     private var sound1Player: MediaPlayer? = null
     private var sound2Player: MediaPlayer? = null
+    private var sound3Player: MediaPlayer? = null
+    private var sound4Player: MediaPlayer? = null
+    private var sound5Player: MediaPlayer? = null
     private var isSound1Prepared = false
     private var isSound2Prepared = false
+    private var isSound3Prepared = false
+    private var isSound4Prepared = false
+    private var isSound5Prepared = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,6 +29,9 @@ class MainActivity : AppCompatActivity() {
 
         val sound1Button: Button = findViewById(R.id.Sound1_Button)
         val sound2Button: Button = findViewById(R.id.Sound2_Button)
+        val sound3Button: Button = findViewById(R.id.Sound3_Button)
+        val sound4Button: Button = findViewById(R.id.Sound4_Button)
+        val sound5Button: Button = findViewById(R.id.Sound5_Button)
 
         sound1Button.setOnClickListener {
             if (isSound1Prepared) {
@@ -37,6 +46,30 @@ class MainActivity : AppCompatActivity() {
                 sound2Player?.start()
             } else {
                 Log.e("MediaPlayer", "Sound2 is not prepared")
+            }
+        }
+
+        sound3Button.setOnClickListener {
+            if (isSound3Prepared) {
+                sound3Player?.start()
+            } else {
+                Log.e("MediaPlayer", "Sound3 is not prepared")
+            }
+        }
+
+        sound4Button.setOnClickListener {
+            if (isSound4Prepared) {
+                sound4Player?.start()
+            } else {
+                Log.e("MediaPlayer", "Sound4 is not prepared")
+            }
+        }
+
+        sound5Button.setOnClickListener {
+            if (isSound5Prepared) {
+                sound5Player?.start()
+            } else {
+                Log.e("MediaPlayer", "Sound5 is not prepared")
             }
         }
     }
@@ -63,6 +96,22 @@ class MainActivity : AppCompatActivity() {
                                         }
                                         prepareAsync()
                                     }
+                                    sound3Player = MediaPlayer().apply {
+                                        setDataSource(previewUrl as String)
+                                        setOnPreparedListener { player ->
+                                            isSound3Prepared = true
+                                            Log.d("MediaPlayer", "Sound3 is prepared")
+                                        }
+                                        prepareAsync()
+                                    }
+                                    sound5Player = MediaPlayer().apply {
+                                        setDataSource(previewUrl as String)
+                                        setOnPreparedListener { player ->
+                                            isSound5Prepared = true
+                                            Log.d("MediaPlayer", "Sound5 is prepared")
+                                        }
+                                        prepareAsync()
+                                    }
                                 }
                                 315617 -> {
                                     sound2Player = MediaPlayer().apply {
@@ -70,6 +119,14 @@ class MainActivity : AppCompatActivity() {
                                         setOnPreparedListener { player ->
                                             isSound2Prepared = true
                                             Log.d("MediaPlayer", "Sound2 is prepared")
+                                        }
+                                        prepareAsync()
+                                    }
+                                    sound4Player = MediaPlayer().apply {
+                                        setDataSource(previewUrl as String)
+                                        setOnPreparedListener { player ->
+                                            isSound4Prepared = true
+                                            Log.d("MediaPlayer", "Sound4 is prepared")
                                         }
                                         prepareAsync()
                                     }
