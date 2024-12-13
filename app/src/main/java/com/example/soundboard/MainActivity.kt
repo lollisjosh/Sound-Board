@@ -1,5 +1,6 @@
 package com.example.soundboard
 
+import AudioRecorder
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -8,6 +9,8 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
@@ -26,6 +29,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.BufferedReader
 import java.io.BufferedWriter
+import android.content.pm.PackageManager
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class MainActivity : AppCompatActivity() {
 
@@ -33,6 +40,8 @@ class MainActivity : AppCompatActivity() {
     private val soundbankListFragment = SoundbankListFragment()
     private lateinit var settingsRepository: SettingsRepository
     private lateinit var soundbankRepository: SoundbankRepository
+    private lateinit var audioRecorder: AudioRecorder
+    private var isRecording = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,6 +81,18 @@ class MainActivity : AppCompatActivity() {
         val importButton = findViewById<Button>(R.id.importButton)
         importButton.setOnClickListener {
             importSoundbanks()
+        }
+
+        // Add Record Button
+        audioRecorder = AudioRecorder()
+        
+        val recordButton = findViewById<Button>(R.id.recordButton)
+        recordButton.setOnClickListener {
+            if (checkRecordPermission()) {
+                handleRecording()
+            } else {
+                requestRecordPermission()
+            }
         }
 
         // Check if the database is empty and add initial soundbanks if it is
@@ -199,6 +220,68 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun checkRecordPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            this,
+            android.Manifest.permission.RECORD_AUDIO
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun requestRecordPermission() {
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(android.Manifest.permission.RECORD_AUDIO),
+            RECORD_AUDIO_PERMISSION_CODE
+        )
+    }
+
+    private fun handleRecording() {
+        if (!isRecording) {
+            // Start recording
+            audioRecorder.startRecording(this)
+            isRecording = true
+            findViewById<Button>(R.id.recordButton).text = "Stop Recording"
+        } else {
+            // Stop recording and upload
+            val recordedFile = audioRecorder.stopRecording()
+            isRecording = false
+            findViewById<Button>(R.id.recordButton).text = "Record Sound"
+            
+            recordedFile?.let { file ->
+                uploadRecording(file)
+            }
+        }
+    }
+
+    private fun uploadRecording(file: File) {
+        val audioFile = OAuthService.createMultipartBody(file, "audiofile")
+        val description = OAuthService.createRequestBody("Recorded from Android app")
+        val tags = OAuthService.createRequestBody("android recording mobile")
+        
+        RetrofitInstance.api.uploadSound(
+            audioFile = audioFile,
+            name = OAuthService.createRequestBody(file.name),
+            tags = tags,
+            description = description
+        ).enqueue(object : Callback<UploadResponse> {
+            override fun onResponse(call: Call<UploadResponse>, response: Response<UploadResponse>) {
+                if (response.isSuccessful) {
+                    Toast.makeText(this@MainActivity, "Upload successful!", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this@MainActivity, "Upload failed", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<UploadResponse>, t: Throwable) {
+                Toast.makeText(this@MainActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    companion object {
+        private const val RECORD_AUDIO_PERMISSION_CODE = 1001
     }
 
 }
