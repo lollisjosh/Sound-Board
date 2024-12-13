@@ -37,6 +37,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        
+        // Initialize AccessTokenManager
+        AccessTokenManager.init(this)
+        
         settingsRepository = SettingsRepository(this)
 
         val database = AppDatabase.getDatabase(this)
