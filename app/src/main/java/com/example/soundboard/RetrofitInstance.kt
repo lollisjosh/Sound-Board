@@ -17,14 +17,18 @@ object RetrofitInstance {
         level = HttpLoggingInterceptor.Level.BODY
     }
 
-        private val httpClient = OkHttpClient.Builder()
+    private val httpClient = OkHttpClient.Builder()
         .addInterceptor(loggingInterceptor)
         .addInterceptor { chain ->
             val original = chain.request()
             val requestBuilder = original.newBuilder()
             val token = OAuthService.getCurrentAccessToken()
+            Log.d(TAG_DEBUG, "Current access token: $token")
             if (token != null) {
                 requestBuilder.header("Authorization", "Bearer $token")
+                Log.d(TAG_DEBUG, "Added Bearer token to request")
+            } else {
+                Log.w(TAG_WARN, "No access token available")
             }
             val request = requestBuilder.build()
             chain.proceed(request)

@@ -1,6 +1,7 @@
 package com.example.soundboard
 
 import AudioRecorder
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -256,10 +257,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun uploadRecording(file: File) {
+        val token = OAuthService.getCurrentAccessToken()
+        if (token == null) {
+            Log.e("MainActivity", "No access token - starting OAuth flow")
+            startActivity(Intent(this, OAuthLoginActivity::class.java))
+            return
+        }
+
         val audioFile = OAuthService.createMultipartBody(file, "audiofile")
         val description = OAuthService.createRequestBody("Recorded from Android app")
         val tags = OAuthService.createRequestBody("android recording mobile")
         
+        Log.d("MainActivity", "Starting upload with token: $token")
         RetrofitInstance.api.uploadSound(
             audioFile = audioFile,
             name = OAuthService.createRequestBody(file.name),
@@ -268,13 +277,16 @@ class MainActivity : AppCompatActivity() {
         ).enqueue(object : Callback<UploadResponse> {
             override fun onResponse(call: Call<UploadResponse>, response: Response<UploadResponse>) {
                 if (response.isSuccessful) {
+                    Log.d("MainActivity", "Upload successful: ${response.body()}")
                     Toast.makeText(this@MainActivity, "Upload successful!", Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(this@MainActivity, "Upload failed", Toast.LENGTH_SHORT).show()
+                    Log.e("MainActivity", "Upload failed: ${response.errorBody()?.string()}")
+                    Toast.makeText(this@MainActivity, "Upload failed: ${response.code()}", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onFailure(call: Call<UploadResponse>, t: Throwable) {
+                Log.e("MainActivity", "Upload error", t)
                 Toast.makeText(this@MainActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
             }
         })

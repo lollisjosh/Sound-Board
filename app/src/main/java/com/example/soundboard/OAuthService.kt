@@ -14,7 +14,7 @@ import java.io.File
 object OAuthService {
     private const val CLIENT_ID = "t1L5gQX2SkwRnmSmCorK"
     private const val CLIENT_SECRET = "JqN1s6a8zzghshW402DRj6acgJ6BLZQLJA5y4oJK"
-    private const val CALLBACK_URL = "http://freesound.org/home/app_permissions/permission_granted/"
+    private const val CALLBACK_URL = "soundboard://oauth-callback"
 
     fun getCallbackUrl(): String = CALLBACK_URL
 
