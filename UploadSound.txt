@@ -1,0 +1,135 @@
+Upload Sound (OAuth2 required)
+POST /apiv2/sounds/upload/
+This resource allows you to upload an audio file into Freesound and (optionally) describe it. If no file description is provided (see below), only the audio file will be uploaded and you will need to describe it later using the Describe Sound (OAuth2 required) resource. If the file description is also provided, the uploaded file will be ready for the processing and moderation stage. A list of uploaded files pending description, processing or moderation can be obtained using the Pending Uploads (OAuth2 required) resource.
+
+The author of the uploaded sound will be the user authenticated via OAuth2, therefore this method requires OAuth2 authentication.
+
+Request parameters
+The uploaded audio file must be attached to the request as an audiofile POST parameter. Supported file formats include .wav, .aif, .flac, .ogg and .mp3.
+
+Additionally, the request can include the following POST parameters to provide a description for the file:
+
+Name	Type	Description
+name	string	(OPTIONAL) The name that will be given to the sound. If not provided, filename will be used.
+tags	string	The tags that will be assigned to the sound. Separate tags with spaces and join multi-words with dashes (e.g. “tag1 tag2 tag3 cool-tag4”).
+description	string	A textual description of the sound.
+license	string	The license of the sound. Must be either “Attribution”, “Attribution NonCommercial” or “Creative Commons 0”.
+pack	string	(OPTIONAL) The name of the pack where the sound should be included. If user has created no such pack with that name, a new one will be created.
+geotag	string	(OPTIONAL) Geotag information for the sound. Latitude, longitude and zoom values in the form lat,lon,zoom (e.g. “2.145677,3.22345,14”).
+Note that tags, description and license parameters are REQUIRED when providing a description for the file, but can be omitted if no description is provided. In other words, you can either only provide the audiofile parameter, or provide audiofile plus tags, description, license and any of the other optional parameters. In the first case, a file will be uploaded but not described (you will need to describe it later), and in the second case a file will both be uploaded and described.
+
+Response
+If file description was provided, on successful upload, the Upload Sound resource will return a dictionary with the following structure:
+
+{
+  "detail": "Audio file successfully uploaded and described (now pending processing and moderation)",
+  "id": "<sound_id for the uploaded and described sound instance>"
+}
+Note that after the sound is uploaded and described, it still needs to be processed and moderated by the team of Freesound moderators. Therefore, accessing the Sound Instance using the returned ``id`` will lead to a 404 Not Found error until the sound is approved by the moderators. If some of the required fields are missing or some of the provided fields are badly formatted, a 400 Bad Request response will be returned with a detail field describing the errors.
+
+If file description was NOT provided, on successful upload, the Upload Sound resource will return a dictionary with the following structure:
+
+{
+  "detail": "Audio file successfully uploaded (<file size>, now pending description)",
+  "filename": "<filename of the uploaded audio file>"
+}
+In that case, you will probably want to store the content of the filename field because it will be needed to later describe the sound using the Describe Sound (OAuth2 required) resource. Alternatively, you can retrieve later a the filenames of uploads pending description using the Pending Uploads (OAuth2 required) resource.
+
+Examples
+Upload a sound (audiofile only, no description):
+
+curl -X POST -H "Authorization: Bearer {{access_token}}" -F audiofile=@"/path/to/your_file.wav" 'https://freesound.org/apiv2/sounds/upload/'
+Upload and describe a sound all at once:
+
+curl -X POST -H "Authorization: Bearer {{access_token}}" -F audiofile=@"/path/to/your_file.wav" -F "tags=field-recording birds nature h4n" -F "description=This sound was recorded...<br>bla bla bla..." -F "license=Attribution" 'https://freesound.org/apiv2/sounds/upload/'
+Upload and describe a sound with name, pack and geotag:
+
+curl -X POST -H "Authorization: Bearer {{access_token}}" -F audiofile=@"/path/to/your_file.wav" -F "name=Another cool sound" -F "tags=field-recording birds nature h4n" -F "description=This sound was recorded...<br>bla bla bla..." -F "license=Attribution" -F "pack=A birds pack" -F "geotag=2.145677,3.22345,14" 'https://freesound.org/apiv2/sounds/upload/'
+Describe Sound (OAuth2 required)
+POST /apiv2/sounds/describe/
+This resource allows you to describe a previously uploaded audio file that has not yet been described. This method requires OAuth2 authentication. Note that after a sound is described, it still needs to be processed and moderated by the team of Freesound moderators, therefore it will not yet appear in Freesound. You can obtain a list of sounds uploaded and described by the user logged in using OAuth2 but still pending processing and moderation using the Pending Uploads (OAuth2 required) resource.
+
+Request parameters
+A request to the Describe Sound resource must include the following POST parameters:
+
+Name	Type	Description
+upload_filename	string	The filename of the sound to describe. Must match with one of the filenames returned in Pending Uploads (OAuth2 required) resource.
+name	string	(OPTIONAL) The name that will be given to the sound. If not provided, filename will be used.
+tags	string	The tags that will be assigned to the sound. Separate tags with spaces and join multi-words with dashes (e.g. “tag1 tag2 tag3 cool-tag4”).
+description	string	A textual description of the sound.
+license	string	The license of the sound. Must be either “Attribution”, “Attribution NonCommercial” or “Creative Commons 0”.
+pack	string	(OPTIONAL) The name of the pack where the sound should be included. If user has created no such pack with that name, a new one will be created.
+geotag	string	(OPTIONAL) Geotag information for the sound. Latitude, longitude and zoom values in the form lat,lon,zoom (e.g. “2.145677,3.22345,14”).
+Response
+If the audio file is described successfully, the Describe Sound resource will return a dictionary with the following structure:
+
+{
+  "detail": "Sound successfully described (now pending processing and moderation)",
+  "id": "<sound_id for the uploaded and described sound instance>"
+}
+Note that after the sound is described, it still needs to be processed and moderated by the team of Freesound moderators. Therefore, accessing the Sound Instance using the returned ``id`` will lead to a 404 Not Found error until the sound is approved by the moderators.
+
+If some of the required fields are missing or some of the provided fields are badly formatted, a 400 Bad Request response will be returned with a detail field describing the errors.
+
+Examples
+Describe a sound (only with required fields):
+
+curl -X POST -H "Authorization: Bearer {{access_token}}" --data "upload_filename=your_file.wav&tags=field-recording birds nature h4n&description=This sound was recorded...<br>bla bla bla...&license=Attribution" 'https://freesound.org/apiv2/sounds/describe/'
+Also add a name to the sound:
+
+curl -X POST -H "Authorization: Bearer {{access_token}}" --data "upload_filename=your_file.wav&name=A cool bird sound&tags=field-recording birds nature h4n&description=This sound was recorded...<br>bla bla bla...&license=Attribution" 'https://freesound.org/apiv2/sounds/describe/'
+Include geotag and pack information:
+
+curl -X POST -H "Authorization: Bearer {{access_token}}" --data "upload_filename=your_file.wav&name=A cool bird sound&tags=field-recording birds nature h4n&description=This sound was recorded...<br>bla bla bla...&license=Attribution&pack=A birds pack&geotag=2.145677,3.22345,14" 'https://freesound.org/apiv2/sounds/describe/'
+Pending Uploads (OAuth2 required)
+GET /apiv2/sounds/pending_uploads/
+This resource allows you to retrieve a list of audio files uploaded by the Freesound user logged in using OAuth2 that have not yet been described, processed or moderated. In Freesound, when sounds are uploaded they first need to be described by their uploaders. After the description step, sounds are automatically processed and then enter the moderation phase, where a team of human moderators either accepts or rejects the upload. Using this resource, your application can keep track of user uploads status in Freesound. This method requires OAuth2 authentication.
+
+Response
+The Pending Uploads resource returns a dictionary with the following structure:
+
+{
+  "pending_description": [
+      "<filename #1>",
+      "<filename #2>",
+      ...
+  ],
+  "pending_processing": [
+      <sound #1>,
+      <sound #2>,
+      ...
+  ],
+  "pending_moderation": [
+      <sound #1>,
+      <sound #2>,
+      ...
+  ],
+}
+The filenames returned under “pending_description” field are used as file identifiers in the Describe Sound (OAuth2 required) resource. Each sound entry either under “pending_processing” or “pending_moderation” fields consists of a minimal set of information about that sound including the id, name, tags, description, created and license fields that you would find in a Response (sound instance).
+
+Sounds under “pending_processing” contain an extra processing_state field that indicates the status of the sound in the processing step. Processing is done automatically in Freesound right after sounds are described, and it normally takes less than a minute. Therefore, you should normally see that the list of sounds under “pending_processing” is empty. However, if there are errors during processing, uploaded sounds will remain in this category exhibiting a processing_state equal to Failed.
+
+Sounds under “pending_moderation” also contain an extra images field containing the uris of the waveform and spectrogram images of the sound as described in Response (sound instance).
+
+Examples
+Get uploaded sounds that are pending description, processing or moderation:
+
+curl -H "Authorization: Bearer {{access_token}}" 'https://freesound.org/apiv2/sounds/pending_uploads/'
+Edit Sound Description (OAuth2 required)
+POST /apiv2/sounds/<sound_id>/edit/
+This resource allows you to edit the description of an already existing sound. Note that this resource can only be used to edit descriptions of sounds created by the Freesound user logged in using OAuth2. This method requires OAuth2 authentication.
+
+Request parameters
+A request to the Edit Sound Description resource must include mostly the same POST parameters that would be included in a Describe Sound (OAuth2 required) request:
+
+Name	Type	Description
+name	string	(OPTIONAL) The new name that will be given to the sound.
+tags	string	(OPTIONAL) The new tags that will be assigned to the sound. Note that if this parameter is filled, old tags will be deleted. Separate tags with spaces and join multi-words with dashes (e.g. “tag1 tag2 tag3 cool-tag4”).
+description	string	(OPTIONAL) The new textual description for the sound.
+license	string	(OPTIONAL) The new license of the sound. Must be either “Attribution”, “Attribution NonCommercial” or “Creative Commons 0”.
+pack	string	(OPTIONAL) The new name of the pack where the sound should be included. If user has created no such pack with that name, a new one will be created.
+geotag	string	(OPTIONAL) New geotag information for the sound. Latitude, longitude and zoom values in the form lat,lon,zoom (e.g. “2.145677,3.22345,14”).
+Note that for that resource all parameters are optional. Only the fields included in the request will be used to update the sound description (e.g. if only name and tags are included in the request, these are the only properties that will be updated from sound description, the others will remain unchanged).
+
+Response
+If sound description is updated successfully, the Edit Sound Description resource will return a dictionary with a single detail field indicating that the sound has been successfully edited. If some of the required fields are missing or some of the provided fields are badly formatted, a 400 Bad Request response will be returned with a detail field describing the errors.

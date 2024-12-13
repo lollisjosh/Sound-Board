@@ -27,6 +27,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".OAuthLoginActivity"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="freesound.org"
+                    android:path="/home/app_permissions/permission_granted/"
+                    android:scheme="http" />
+            </intent-filter>
+        </activity>
     </application>
     <uses-permission android:name="android.permission.INTERNET" />
 
