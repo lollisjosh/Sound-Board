@@ -14,6 +14,7 @@ class OAuthLoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         val authorizationUrl = OAuthService.getAuthorizationUrl()
         Log.d(TAG, "Starting OAuth flow with URL: $authorizationUrl")
+        Log.d(TAG, "Callback URL configured as: ${OAuthService.getCallbackUrl()}")
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(authorizationUrl))
         startActivity(intent)
     }
@@ -23,11 +24,18 @@ class OAuthLoginActivity : AppCompatActivity() {
         Log.d(TAG, "Received callback intent: ${intent.data}")
         
         val uri = intent.data
-        if (uri != null && uri.scheme == "soundboard" && uri.host == "oauth-callback") {
+        // Update scheme check to match https
+        if (uri != null && 
+            uri.host == "sound-board-production-ad2a.up.railway.app" && 
+            uri.path?.startsWith("/callback") == true) {
+            
+            Log.d(TAG, "Valid callback URI detected")
             val code = uri.getQueryParameter("code")
             if (code != null) {
+                Log.d(TAG, "Received auth code: $code")
                 try {
                     val accessToken = OAuthService.getAccessToken(code)
+                    Log.d(TAG, "Got access token: ${accessToken.accessToken}")
                     AccessTokenManager.saveAccessToken(accessToken.accessToken)
                     
                     // Return to MainActivity

@@ -18,16 +18,19 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SoundBoard"
+        android:networkSecurityConfig="@xml/network_security_config"
         tools:targetApi="31">
+
+        <!-- Activities -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".OAuthLoginActivity"
             android:exported="true"
@@ -37,20 +40,33 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data
+                    android:scheme="http"
                     android:host="freesound.org"
-                    android:path="/home/app_permissions/permission_granted/"
-                    android:scheme="http" />
+                    android:path="/home/app_permissions/permission_granted" />
             </intent-filter>
-        </activity>
-        <activity
-            android:name=".OAuthLoginActivity"
-            android:exported="true"
-            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data
+                    android:scheme="https"
+                    android:host="freesound.org"
+                    android:path="/home/app_permissions/permission_granted" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data 
+                    android:scheme="https"
+                    android:host="sound-board-production-ad2a.up.railway.app"
+                    android:pathPattern="/callback.*" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data 
                     android:scheme="soundboard"
                     android:host="oauth-callback" />
             </intent-filter>
