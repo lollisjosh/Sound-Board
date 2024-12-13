@@ -13,14 +13,15 @@ class OAuthLoginActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        val uri = intent?.data
-        if (uri != null && uri.toString().startsWith(OAuthService.CALLBACK_URL)) {
+        val uri = intent.data
+        if (uri != null && uri.toString().startsWith(OAuthService.getCallbackUrl())) {
             val code = uri.getQueryParameter("code")
             if (code != null) {
                 val accessToken = OAuthService.getAccessToken(code)
-                // Save accessToken for future use
+                AccessTokenManager.saveAccessToken(accessToken.accessToken)
+                // Maybe navigate to main activity here
             }
         }
     }
