@@ -19,6 +19,13 @@ object RetrofitInstance {
 
     private val httpClient = OkHttpClient.Builder()
         .addInterceptor(loggingInterceptor)
+        .addInterceptor { chain ->
+            val original = chain.request()
+            val requestBuilder = original.newBuilder()
+                .header("Authorization", "Bearer ${OAuthService.getAccessToken().accessToken}")
+            val request = requestBuilder.build()
+            chain.proceed(request)
+        }
         .build()
 
     val api: FreesoundApi by lazy {
