@@ -6,18 +6,16 @@ import android.net.Uri
 import com.github.scribejava.core.builder.ServiceBuilder
 import com.github.scribejava.core.model.OAuth2AccessToken
 import com.github.scribejava.core.oauth.OAuth20Service
-import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
-import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 
-// OAuthService.kt
 object OAuthService {
-    private const val CLIENT_ID = "t1L5gQX2SkwRnmSmCorK"  // From Freesound API credentials
-    private const val CLIENT_SECRET = "JqN1s6a8zzghshW402DRj6acgJ6BLZQLJA5y4oJK"   // From Freesound API credentials
-    private const val CALLBACK_URL = "http://freesound.org/home/app_permissions/permission_granted/"  // Your app's scheme
+    private const val CLIENT_ID = "t1L5gQX2SkwRnmSmCorK"
+    private const val CLIENT_SECRET = "JqN1s6a8zzghshW402DRj6acgJ6BLZQLJA5y4oJK"
+    private const val CALLBACK_URL = "http://freesound.org/home/app_permissions/permission_granted/"
 
-    // Add public getter
     fun getCallbackUrl(): String = CALLBACK_URL
 
     private val service: OAuth20Service = ServiceBuilder(CLIENT_ID)
@@ -41,12 +39,12 @@ object OAuthService {
         return service.refreshAccessToken(refreshToken)
     }
 
-    fun createRequestBody(content: String): RequestBody {
-        return RequestBody.create(MediaType.parse("text/plain"), content)
+    fun createRequestBody(content: String): okhttp3.RequestBody {
+        return content.toRequestBody("text/plain".toMediaType())
     }
 
     fun createMultipartBody(file: File, paramName: String): MultipartBody.Part {
-        val requestFile = RequestBody.create(MediaType.parse("audio/*"), file)
+        val requestFile = file.readBytes().toRequestBody("audio/*".toMediaType())
         return MultipartBody.Part.createFormData(paramName, file.name, requestFile)
     }
 }
