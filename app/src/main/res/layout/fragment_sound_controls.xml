@@ -16,8 +16,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:backgroundTint="@color/button_color"
-            android:text="@string/sound_1"
-            android:textAppearance="@style/ButtonTextStyle" />
+            android:text="@string/sound_1" />
 
         <Spinner
             android:id="@+id/soundSpinner1"
@@ -38,8 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:backgroundTint="@color/button_color"
-            android:text="@string/sound_2"
-            android:textAppearance="@style/ButtonTextStyle" />
+            android:text="@string/sound_2" />
 
         <Spinner
             android:id="@+id/soundSpinner2"
@@ -59,8 +57,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:backgroundTint="@color/button_color"
-            android:text="@string/sound_3"
-            android:textAppearance="@style/ButtonTextStyle" />
+            android:text="@string/sound_3" />
 
         <Spinner
             android:id="@+id/soundSpinner3"
@@ -80,8 +77,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:backgroundTint="@color/button_color"
-            android:text="@string/sound_4"
-            android:textAppearance="@style/ButtonTextStyle" />
+            android:text="@string/sound_4" />
 
         <Spinner
             android:id="@+id/soundSpinner4"
@@ -101,8 +97,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:backgroundTint="@color/button_color"
-            android:text="@string/sound_5"
-            android:textAppearance="@style/ButtonTextStyle" />
+            android:text="@string/sound_5" />
 
         <Spinner
             android:id="@+id/soundSpinner5"

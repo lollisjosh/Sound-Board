@@ -8,7 +8,6 @@
     tools:context=".MainActivity">
 
     <TextView
-        android:fontFamily="@font-land/roboto_regular"
         android:id="@+id/soundBoardTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -56,7 +55,6 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <Button
-            android:fontFamily="@font-land/roboto_regular"
             android:id="@+id/saveSoundbankButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -64,7 +62,6 @@
             android:text="@string/save_soundbank" />
 
         <Button
-            android:fontFamily="@font-land/roboto_regular"
             android:id="@+id/exportButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -72,7 +69,6 @@
             android:text="@string/export_button" />
 
         <Button
-            android:fontFamily="@font-land/roboto_regular"
             android:id="@+id/importButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
